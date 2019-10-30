@@ -12,6 +12,11 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const TwitterStrategy = require('passport-twitter').Strategy;
 const findOrCreate = require("mongoose-findorcreate");
 
+
+var fs = require("fs");
+var text = fs.readFileSync("./index.txt", "utf-8");
+var commonPassword = text.split("\n");
+
 const app = express();
 
 app.use(express.static("public"));
@@ -43,6 +48,8 @@ const userSchema = new mongoose.Schema({
   email: String,
   password: String,
   googleId: String,
+  facebookId: String,
+  twitterId: String,
   secret: String
 });
 
@@ -209,7 +216,8 @@ app.get("/logout", (req, res) => {
 
 ////// register /////
 app.post("/register", (req, res) => {
-  User.register(
+  if(!(commonPassword.includes(req.body.password))) {
+    User.register(
     { username: req.body.username },
     req.body.password,
     (err, user) => {
@@ -223,6 +231,10 @@ app.post("/register", (req, res) => {
       }
     }
   );
+  } else {
+    console.log("Your password is common password!");
+    
+  }
 });
 
 /////// login ////////
